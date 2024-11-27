@@ -8,10 +8,10 @@ const App = () => {
   const dockHeight = 50; // Height of the dock
   const [windows, setWindows] = useState([]);
   const [icons, setIcons] = useState([
-    { id: 1, name: "Folder 1", icon: "📁", content: "Folder 1 Content", position: { x: -70, y: 40 } },
-    { id: 2, name: "Folder 2", icon: "📁", content: "Folder 2 Content", position: { x: -70, y: 135 } },
-    { id: 3, name: "Folder 3", icon: "📁", content: "Folder 3 Content", position: { x: -70, y: 210 } },
-    { id: 4, name: "Recycle Bin", icon: "🗑️", content: "Recycle Bin Content", position: { x: -70, y: 280 } },
+    { id: 1, name: "Folder 1", icon: "📁", content: "Folder 1 Content", position: { x: 20, y: 130 } },
+    { id: 2, name: "Folder 2", icon: "📁", content: "Folder 2 Content", position: { x: 20, y: 230 } },
+    { id: 3, name: "Folder 3", icon: "📁", content: "Folder 3 Content", position: { x: 20, y: 330 } },
+    { id: 4, name: "Recycle Bin", icon: "🗑️", content: "Recycle Bin Content", position: { x: 20, y: 430 } },
   ]);
   const [fadeIn, setFadeIn] = useState(false);
 
