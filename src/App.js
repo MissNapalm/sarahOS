@@ -29,19 +29,19 @@ const App = () => {
   const handleIconDrag = (id, e) => {
     const iconIndex = icons.findIndex((icon) => icon.id === id);
     if (iconIndex === -1) return;
-
+  
     const newIcons = [...icons];
     const newX = newIcons[iconIndex].position.x + e.movementX;
     const newY = newIcons[iconIndex].position.y + e.movementY;
-
-    // Prevent icons from going under the dock
+  
+    // Prevent icons from going under the dock at the top
     if (newY < dockHeight) {
-      newIcons[iconIndex].position.y = dockHeight + 10;
+      newIcons[iconIndex].position.y = newIcons[iconIndex].position.y;
     } else {
       newIcons[iconIndex].position.x = newX;
       newIcons[iconIndex].position.y = newY;
     }
-
+  
     setIcons(newIcons);
   };
 
@@ -78,7 +78,7 @@ const App = () => {
                 document.removeEventListener("mousemove", onDrag);
                 document.removeEventListener("mouseup", onDragEnd);
               };
-
+            
               document.addEventListener("mousemove", onDrag);
               document.addEventListener("mouseup", onDragEnd);
             }}
@@ -97,7 +97,7 @@ const App = () => {
         apps={[
           { name: "About Me", icon: "📜", content: "About Me Content" },
           { name: "Apps", icon: "📂", content: "Apps Content" },
-          { name: "Ethical Hacks", icon: "🛡️", content: "Ethical Hacks Content" },
+          { name: "Ethical Hacks", icon: "🖧", content: "Ethical Hacks Content" },
           { name: "Nonprofit", icon: "🌍", content: "Nonprofit Content" },
           { name: "Settings", icon: "⚙️", content: "Settings Content" },
         ]}
