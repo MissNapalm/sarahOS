@@ -1,0 +1,14 @@
+.desktop-icon {
+    width: 90px; /* Increase width */
+    height: 100px; /* Increase height */
+    margin: 15px; /* Adjust spacing between icons */
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    font-size: 24px; /* Increase text size for labels */
+  }
+  
+  .desktop-icon i {
+    font-size: 50px; /* Increase the size of the icon */
+  }
+  
