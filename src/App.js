@@ -5,15 +5,17 @@ import DesktopIcon from "./components/DesktopIcon";
 import './App.css';
 
 const App = () => {
-  const dockHeight = 50; // Height of the dock
+  const dockHeight = 50;
   const [windows, setWindows] = useState([]);
   const [icons, setIcons] = useState([
-    { id: 1, name: "Folder 1", icon: "📁", content: "Folder 1 Content", position: { x: 20, y: 130 } },
-    { id: 2, name: "Folder 2", icon: "📁", content: "Folder 2 Content", position: { x: 20, y: 230 } },
-    { id: 3, name: "Folder 3", icon: "📁", content: "Folder 3 Content", position: { x: 20, y: 330 } },
+    { id: 1, name: "Documents", icon: "📄", content: "Documents Content", position: { x: 20, y: 130 } },
+    { id: 2, name: "Projects", icon: "📁", content: "Projects Content", position: { x: 20, y: 230 } },
+    { id: 3, name: "Downloads", icon: "⬇️", content: "Downloads Content", position: { x: 20, y: 330 } },
     { id: 4, name: "Recycle Bin", icon: "🗑️", content: "Recycle Bin Content", position: { x: 20, y: 430 } },
   ]);
+  const [bootScreen, setBootScreen] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
   const openWindow = (app) => {
     setWindows((prev) => [
@@ -34,7 +36,6 @@ const App = () => {
     const newX = newIcons[iconIndex].position.x + e.movementX;
     const newY = newIcons[iconIndex].position.y + e.movementY;
   
-    // Prevent icons from going under the dock at the top
     if (newY < dockHeight) {
       newIcons[iconIndex].position.y = newIcons[iconIndex].position.y;
     } else {
@@ -46,7 +47,20 @@ const App = () => {
   };
 
   useEffect(() => {
-    // Adjust icons if they start overlapping the dock on load
+    // Show text after 2 seconds
+    const spinnerTimer = setTimeout(() => {
+      setFadeIn(true);
+    }, 2000);
+
+    // Hide boot screen after 4 seconds
+    const bootTimer = setTimeout(() => {
+      setBootScreen(false);
+      setTimeout(() => {
+        setShowContent(true);
+      }, 1000);
+    }, 4000);
+
+    // Icon adjustment
     const adjustedIcons = icons.map((icon) => {
       if (icon.position.y < dockHeight) {
         return { ...icon, position: { ...icon.position, y: dockHeight + 10 } };
@@ -55,96 +69,109 @@ const App = () => {
     });
     setIcons(adjustedIcons);
 
-    // Trigger fade-in effect for the central text
-    const timeout = setTimeout(() => setFadeIn(true), 500); // Delay fade-in
-    return () => clearTimeout(timeout);
-  }, [dockHeight]);
+    return () => {
+      clearTimeout(spinnerTimer);
+      clearTimeout(bootTimer);
+    };
+  }, []);
 
   return (
     <div className="desktop">
-      {/* Desktop Icons */}
-      <div className="desktop-icons">
-        {icons.map((icon) => (
-          <div
-            key={icon.id}
-            className="absolute cursor-pointer"
-            style={{
-              left: `${icon.position.x}px`,
-              top: `${icon.position.y}px`,
-            }}
-            onMouseDown={(e) => {
-              const onDrag = (event) => handleIconDrag(icon.id, event);
-              const onDragEnd = () => {
-                document.removeEventListener("mousemove", onDrag);
-                document.removeEventListener("mouseup", onDragEnd);
-              };
-            
-              document.addEventListener("mousemove", onDrag);
-              document.addEventListener("mouseup", onDragEnd);
-            }}
-          >
-            <DesktopIcon
-              name={icon.name}
-              icon={icon.icon}
-              onDoubleClick={() => openWindow(icon)}
-            />
-          </div>
-        ))}
+      {/* Boot Screen */}
+      <div
+        className="fixed inset-0 bg-black z-50"
+        style={{
+          opacity: bootScreen ? 1 : 0,
+          pointerEvents: showContent ? 'none' : 'auto',
+          transition: 'opacity 1s ease-in-out'
+        }}
+      >
+        {/* Initial centered loader */}
+        <div 
+          style={{ 
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: fadeIn ? 0 : 1,
+            transition: 'opacity 0.5s ease-in-out'
+          }}
+        >
+          <div className="loader" />
+        </div>
+
+        {/* Text that fades in */}
+        <div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
+          style={{
+            opacity: fadeIn ? 1 : 0,
+            transition: 'opacity 1s ease-in-out'
+          }}
+        >
+          <h1 className="text-white text-8xl font-bold text-center">
+            <span>Sarah</span>
+            <span style={{ fontSize: '130%', display: 'inline-block', marginLeft: '8px' }}>
+              OS
+            </span>
+          </h1>
+          <p className="text-white text-2xl text-center">
+            Frontend Design, Ethical Hacking
+          </p>
+        </div>
       </div>
 
-      {/* Dock */}
-      <Dock
-        apps={[
-          { name: "About Me", icon: "📜", content: "About Me Content" },
-          { name: "Apps", icon: "📂", content: "Apps Content" },
-          { name: "Ethical Hacks", icon: "🖧", content: "Ethical Hacks Content" },
-          { name: "Nonprofit", icon: "🌍", content: "Nonprofit Content" },
-          { name: "Settings", icon: "⚙️", content: "Settings Content" },
-        ]}
-        onAppClick={openWindow}
-      />
+      {/* Desktop Content */}
+      <div style={{ opacity: showContent ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
+        {/* Desktop Icons */}
+        <div className="desktop-icons">
+          {icons.map((icon) => (
+            <div
+              key={icon.id}
+              className="absolute cursor-pointer"
+              style={{
+                left: `${icon.position.x}px`,
+                top: `${icon.position.y}px`,
+              }}
+              onMouseDown={(e) => {
+                const onDrag = (event) => handleIconDrag(icon.id, event);
+                const onDragEnd = () => {
+                  document.removeEventListener("mousemove", onDrag);
+                  document.removeEventListener("mouseup", onDragEnd);
+                };
+                document.addEventListener("mousemove", onDrag);
+                document.addEventListener("mouseup", onDragEnd);
+              }}
+            >
+              <DesktopIcon
+                name={icon.name}
+                icon={icon.icon}
+                onDoubleClick={() => openWindow(icon)}
+              />
+            </div>
+          ))}
+        </div>
 
-      {/* Windows */}
-      {windows.map((win) => (
-        <Window
-          key={win.id}
-          title={win.title}
-          content={win.content}
-          onClose={() => closeWindow(win.id)}
+        {/* Dock */}
+        <Dock
+          apps={[
+            { name: "About Me", icon: "📜", content: "About Me Content" },
+            { name: "Apps", icon: "📂", content: "Apps Content" },
+            { name: "Ethical Hacks", icon: "🛡️", content: "Ethical Hacks Content" },
+            { name: "Nonprofit", icon: "🌍", content: "Nonprofit Content" },
+            { name: "Settings", icon: "⚙️", content: "Settings Content" },
+          ]}
+          onAppClick={openWindow}
         />
-      ))}
 
-      {/* Central Text */}
-      <div
-        className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center transition-opacity duration-1000 ${
-          fadeIn ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <h1
-          className="text-white text-8xl font-bold drop-shadow-lg"
-          style={{
-            textShadow: "2px 2px 10px rgba(0, 0, 0, 0.6)", // Subtle shadow effect
-          }}
-        >
-          <span>Sarah</span>
-          <span
-            style={{
-              fontSize: "130%",
-              display: "inline-block",
-              marginLeft: "8px",
-            }}
-          >
-            OS
-          </span>
-        </h1>
-        <p
-          className="text-white text-2xl mt-6"
-          style={{
-            textShadow: "1px 1px 5px rgba(0, 0, 0, 0.4)", // Subtle shadow effect for subtitle
-          }}
-        >
-          Frontend Design, Ethical Hacking
-        </p>
+        {/* Windows */}
+        {windows.map((win) => (
+          <Window
+            key={win.id}
+            title={win.title}
+            content={win.content}
+            onClose={() => closeWindow(win.id)}
+          />
+        ))}
       </div>
     </div>
   );
