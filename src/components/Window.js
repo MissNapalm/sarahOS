@@ -1,32 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const Window = ({ title, content, onClose }) => {
   const [position, setPosition] = useState({ x: 100, y: 100 });
+  const [size, setSize] = useState({ width: 500, height: 350 });
   const [dragging, setDragging] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [resizing, setResizing] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
-  const onMouseDown = (e) => {
+  const handleMouseDown = (e) => {
     if (e.target.closest('.window-header-buttons')) return;
     setDragging(true);
-    setOffset({
+    setDragOffset({
       x: e.clientX - position.x,
       y: e.clientY - position.y
     });
     e.preventDefault();
   };
 
-  const onMouseMove = (e) => {
-    if (dragging) {
-      setPosition({
-        x: e.clientX - offset.x,
-        y: e.clientY - offset.y
-      });
-    }
+  const handleResizeStart = (e) => {
+    setResizing(true);
+    resizeStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height
+    };
+    e.stopPropagation();
   };
 
-  const onMouseUp = () => {
-    setDragging(false);
-  };
+  // Add global mouse event listeners when resizing starts
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => {
+      if (resizing) {
+        const deltaX = e.clientX - resizeStartRef.current.x;
+        const deltaY = e.clientY - resizeStartRef.current.y;
+        
+        const newWidth = Math.max(300, resizeStartRef.current.width + deltaX);
+        const newHeight = Math.max(200, resizeStartRef.current.height + deltaY);
+        
+        setSize({ width: newWidth, height: newHeight });
+      } else if (dragging) {
+        setPosition({
+          x: e.clientX - dragOffset.x,
+          y: e.clientY - dragOffset.y
+        });
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      setDragging(false);
+      setResizing(false);
+    };
+
+    if (resizing || dragging) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [resizing, dragging, dragOffset]);
 
   return (
     <div
@@ -35,8 +71,8 @@ const Window = ({ title, content, onClose }) => {
         position: 'absolute',
         left: `${position.x}px`,
         top: `${position.y}px`,
-        width: '500px',
-        height: '350px',
+        width: `${size.width}px`,
+        height: `${size.height}px`,
         borderRadius: '16px',
         background: 'rgba(28, 28, 28, 0.8)',
         backdropFilter: 'blur(20px)',
@@ -48,13 +84,10 @@ const Window = ({ title, content, onClose }) => {
         userSelect: 'none',
         border: '1px solid rgba(255, 255, 255, 0.1)',
       }}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
     >
       <div
         className="window-header"
-        onMouseDown={onMouseDown}
+        onMouseDown={handleMouseDown}
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -131,6 +164,22 @@ const Window = ({ title, content, onClose }) => {
       >
         {content}
       </div>
+      
+      {/* Larger resize handle */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          width: '30px',
+          height: '30px',
+          cursor: 'se-resize',
+          zIndex: 1000,
+          background: 'transparent',
+          transform: 'translate(5px, 5px)', // Extends clickable area outside window
+        }}
+        onMouseDown={handleResizeStart}
+      />
     </div>
   );
 };
