@@ -4,6 +4,8 @@ import Window from "./components/Window";
 import DesktopIcon from "./components/DesktopIcon";
 import './App.css';
 
+
+
 const App = () => {
   const dockHeight = 50;
   const [windows, setWindows] = useState([]);

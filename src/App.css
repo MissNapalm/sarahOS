@@ -23,33 +23,24 @@ body, html {
 }
 
 .desktop-icon {
-  width: 90px;
-  height: 100px;
+  width: 90px; /* Default size */
+  height: 100px; /* Default size */
   margin: 15px;
   text-align: center;
   color: white;
   cursor: pointer;
   font-size: 24px;
+  transition: transform 0.3s ease; /* Smooth scaling */
 }
 
 .desktop-icon i {
   font-size: 50px;
 }
 
-/* Dock */
-.dock {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 110px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  transition: background-color 0.3s ease;
+.desktop-icon:hover {
+  transform: scale(1.3); /* Expands the icon by 30% */
 }
+
 
 .dock-icon {
   font-size: 50px;
@@ -216,4 +207,20 @@ body, html {
 /* Additional custom Tailwind styles */
 body {
   @apply bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white;
+}
+
+/* Set the initial opacity to 0 */
+#text {
+  opacity: 0;
+  animation: fadeIn 2s forwards; /* Apply the fadeIn animation */
+}
+
+/* Define the fadeIn animation */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

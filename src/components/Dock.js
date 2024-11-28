@@ -26,16 +26,33 @@ const Dock = ({ apps, onAppClick }) => {
           className="dock-icon"
           onClick={() => onAppClick(app)}
           style={{
-            margin: "0 15px", // Adjust spacing between icons
+            margin: "0 15px",
             cursor: "pointer",
-            fontSize: "80px", // Increase icon size here
+            fontSize: app.icon.includes("img")
+              ? "0px" /* Prevents text-based scaling for images */
+              : "80px", // Default font size for emoji icons
           }}
         >
-          {app.icon}
+          {typeof app.icon === "string" ? (
+            // Render emoji directly if app.icon is a string
+            app.icon
+          ) : (
+            // Render image icons
+            <img
+              src={app.icon.props.src}
+              alt={app.icon.props.alt}
+              style={{
+                width: "50px", // Adjust the icon size here
+                height: "50px",
+                borderRadius: "50%", // Optional for circular icons
+              }}
+            />
+          )}
         </div>
       ))}
     </div>
   );
 };
+
 
 export default Dock;
