@@ -1,8 +1,86 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { Howl } from 'howler';
 import Dock from "./components/Dock";
 import Window from "./components/Window";
 import DesktopIcon from "./components/DesktopIcon";
 import './App.css';
+const AboutMeContent = () => {
+  return (
+    <div className="about-me-container">
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+        <div style={{
+          fontSize: '120px',
+          width: '150px',
+          height: '150px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '12px',
+          border: '2px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+        }}>
+          👩‍💻
+        </div>
+        <div>
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: 'bold',
+            marginBottom: '10px',
+            color: '#fff'
+          }}>
+            Sarah Clark
+          </h2>
+          <p style={{ 
+            fontSize: '16px',
+            color: 'rgba(255, 255, 255, 0.7)',
+            marginBottom: '15px',
+          }}>
+            Frontend Developer & Security Enthusiast
+          </p>
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            marginBottom: '15px',
+            flexWrap: 'wrap'
+          }}>
+            {['React', 'TypeScript', 'Node.js', 'Security'].map((skill) => (
+              <span key={skill} style={{
+                padding: '4px 10px',
+                borderRadius: '15px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.9)',
+              }}>
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+        <p style={{ marginBottom: '15px', lineHeight: '1.6' }}>
+          Hello! I'm a passionate frontend developer with a unique twist - I specialize in creating beautiful, 
+          intuitive web interfaces while maintaining a strong focus on security. With experience in web development 
+          and security practices, I bridge the gap between aesthetics and protection.
+        </p>
+
+        <p style={{ marginBottom: '15px', lineHeight: '1.6' }}>
+          I began studying cybersecurity and hacking while working as a caregiver for my father, then moved on to 
+          REST APIs, full stack applications, and finally frontend design. This diverse background gives me a unique 
+          perspective on creating secure, user-friendly applications.
+        </p>
+
+        <p style={{ lineHeight: '1.6' }}>
+          When I'm not coding or exploring security concepts, I contribute to open-source projects and mentor 
+          aspiring developers. I believe in making technology both beautiful and secure, ensuring that users can 
+          trust the applications they interact with.
+        </p>
+      </div>
+    </div>
+  );
+};
 
 const App = () => {
   const dockHeight = 50;
@@ -16,13 +94,20 @@ const App = () => {
   const [bootScreen, setBootScreen] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
   const [showContent, setShowContent] = useState(false);
-  const audioContextRef = useRef(null);
-  const audioBufferRef = useRef(null);
+
+  const sound = new Howl({
+    src: ['/startup.mp3'],
+    volume: 0.5
+  });
 
   const openWindow = (app) => {
+    let content = app.content;
+    if (app.name === "About Me") {
+      content = <AboutMeContent />;
+    }
     setWindows((prev) => [
       ...prev,
-      { id: Date.now(), title: app.name, content: app.content },
+      { id: Date.now(), title: app.name, content: content },
     ]);
   };
 
@@ -48,47 +133,11 @@ const App = () => {
     setIcons(newIcons);
   };
 
-  // Initialize Web Audio API
   useEffect(() => {
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-
-    fetch('/startup.mp3')
-      .then(response => response.arrayBuffer())
-      .then(arrayBuffer => audioContextRef.current.decodeAudioData(arrayBuffer))
-      .then(audioBuffer => {
-        audioBufferRef.current = audioBuffer;
-        console.log('Audio loaded successfully');
-      })
-      .catch(error => console.error('Error loading audio:', error));
-
-    return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
-
-  const playBootSound = () => {
-    if (audioContextRef.current && audioBufferRef.current) {
-      const source = audioContextRef.current.createBufferSource();
-      source.buffer = audioBufferRef.current;
-      
-      const gainNode = audioContextRef.current.createGain();
-      gainNode.gain.value = 0.5;
-      
-      source.connect(gainNode);
-      gainNode.connect(audioContextRef.current.destination);
-      
-      source.start(0);
-      console.log('Playing boot sound');
-    }
-  };
-
-  useEffect(() => {
-    // Show text and play sound after 2 seconds
+    // Show text after 2 seconds
     const spinnerTimer = setTimeout(() => {
       setFadeIn(true);
-      playBootSound();
+      sound.play();
     }, 2000);
 
     // Hide boot screen after 4 seconds
@@ -154,7 +203,7 @@ const App = () => {
             </span>
           </h1>
           <p className="text-white text-2xl text-center">
-            Frontend Design, Ethical Hacking
+            Frontend Design and Cybersecurity
           </p>
         </div>
       </div>
@@ -174,7 +223,7 @@ const App = () => {
           </span>
         </h1>
         <p className="text-white text-2xl text-center">
-          Frontend Design, Ethical Hacking
+          Frontend Design and Cybersecurity
         </p>
       </div>
 
