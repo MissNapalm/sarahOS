@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Dock from "./components/Dock";
 import Window from "./components/Window";
 import DesktopIcon from "./components/DesktopIcon";
@@ -13,8 +13,11 @@ const App = () => {
     { id: 3, name: "Downloads", icon: "⬇️", content: "Downloads Content", position: { x: 20, y: 330 } },
     { id: 4, name: "Recycle Bin", icon: "🗑️", content: "Recycle Bin Content", position: { x: 20, y: 430 } },
   ]);
+  const [bootScreen, setBootScreen] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const audioContextRef = useRef(null);
+  const audioBufferRef = useRef(null);
 
   const openWindow = (app) => {
     setWindows((prev) => [
@@ -45,15 +48,55 @@ const App = () => {
     setIcons(newIcons);
   };
 
+  // Initialize Web Audio API
   useEffect(() => {
-    // Show text after 2 seconds
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+
+    fetch('/startup.mp3')
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => audioContextRef.current.decodeAudioData(arrayBuffer))
+      .then(audioBuffer => {
+        audioBufferRef.current = audioBuffer;
+        console.log('Audio loaded successfully');
+      })
+      .catch(error => console.error('Error loading audio:', error));
+
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  const playBootSound = () => {
+    if (audioContextRef.current && audioBufferRef.current) {
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBufferRef.current;
+      
+      const gainNode = audioContextRef.current.createGain();
+      gainNode.gain.value = 0.5;
+      
+      source.connect(gainNode);
+      gainNode.connect(audioContextRef.current.destination);
+      
+      source.start(0);
+      console.log('Playing boot sound');
+    }
+  };
+
+  useEffect(() => {
+    // Show text and play sound after 2 seconds
     const spinnerTimer = setTimeout(() => {
       setFadeIn(true);
+      playBootSound();
     }, 2000);
 
-    // Only show desktop content after animation
-    const contentTimer = setTimeout(() => {
-      setShowContent(true);
+    // Hide boot screen after 4 seconds
+    const bootTimer = setTimeout(() => {
+      setBootScreen(false);
+      setTimeout(() => {
+        setShowContent(true);
+      }, 1000);
     }, 4000);
 
     // Icon adjustment
@@ -67,34 +110,61 @@ const App = () => {
 
     return () => {
       clearTimeout(spinnerTimer);
-      clearTimeout(contentTimer);
+      clearTimeout(bootTimer);
     };
   }, []);
 
   return (
     <div className="desktop">
-      {/* Initial centered loader */}
-      <div 
-        style={{ 
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          opacity: fadeIn ? 0 : 1,
-          transition: 'opacity 0.5s ease-in-out',
-          zIndex: 50
+      {/* Boot Screen */}
+      <div
+        className="fixed inset-0 bg-black z-50"
+        style={{
+          opacity: bootScreen ? 1 : 0,
+          pointerEvents: showContent ? 'none' : 'auto',
+          transition: 'opacity 1s ease-in-out'
         }}
       >
-        <div className="loader" />
+        {/* Initial centered loader */}
+        <div 
+          style={{ 
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            opacity: fadeIn ? 0 : 1,
+            transition: 'opacity 0.5s ease-in-out'
+          }}
+        >
+          <div className="loader" />
+        </div>
+
+        {/* Text that fades in */}
+        <div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
+          style={{
+            opacity: fadeIn ? 1 : 0,
+            transition: 'opacity 1s ease-in-out'
+          }}
+        >
+          <h1 className="text-white text-8xl font-bold text-center">
+            <span>Sarah</span>
+            <span style={{ fontSize: '130%', display: 'inline-block', marginLeft: '8px' }}>
+              OS
+            </span>
+          </h1>
+          <p className="text-white text-2xl text-center">
+            Frontend Design, Ethical Hacking
+          </p>
+        </div>
       </div>
 
-      {/* OS Text */}
+      {/* OS Text (persists after boot) */}
       <div 
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center z-40"
         style={{
           opacity: fadeIn ? 1 : 0,
-          transition: 'opacity 1s ease-in-out',
-          zIndex: 40
+          transition: 'opacity 1s ease-in-out'
         }}
       >
         <h1 className="text-white text-8xl font-bold text-center">
@@ -143,7 +213,7 @@ const App = () => {
         <Dock
           apps={[
             { name: "About Me", icon: "📜", content: "About Me Content" },
-            { name: "Apps", icon: "📂", content: "Apps Content" },
+            { name: "Skills", icon: "📂", content: "Skills Content" },
             { name: "Ethical Hacks", icon: "🛡️", content: "Ethical Hacks Content" },
             { name: "Nonprofit", icon: "🌍", content: "Nonprofit Content" },
             { name: "Settings", icon: "⚙️", content: "Settings Content" },
