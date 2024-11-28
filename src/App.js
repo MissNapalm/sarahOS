@@ -4,8 +4,6 @@ import Window from "./components/Window";
 import DesktopIcon from "./components/DesktopIcon";
 import './App.css';
 
-
-
 const App = () => {
   const dockHeight = 50;
   const [windows, setWindows] = useState([]);
@@ -15,7 +13,6 @@ const App = () => {
     { id: 3, name: "Downloads", icon: "⬇️", content: "Downloads Content", position: { x: 20, y: 330 } },
     { id: 4, name: "Recycle Bin", icon: "🗑️", content: "Recycle Bin Content", position: { x: 20, y: 430 } },
   ]);
-  const [bootScreen, setBootScreen] = useState(true);
   const [fadeIn, setFadeIn] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
@@ -54,12 +51,9 @@ const App = () => {
       setFadeIn(true);
     }, 2000);
 
-    // Hide boot screen after 4 seconds
-    const bootTimer = setTimeout(() => {
-      setBootScreen(false);
-      setTimeout(() => {
-        setShowContent(true);
-      }, 1000);
+    // Only show desktop content after animation
+    const contentTimer = setTimeout(() => {
+      setShowContent(true);
     }, 4000);
 
     // Icon adjustment
@@ -73,53 +67,45 @@ const App = () => {
 
     return () => {
       clearTimeout(spinnerTimer);
-      clearTimeout(bootTimer);
+      clearTimeout(contentTimer);
     };
   }, []);
 
   return (
     <div className="desktop">
-      {/* Boot Screen */}
-      <div
-        className="fixed inset-0 bg-black z-50"
-        style={{
-          opacity: bootScreen ? 1 : 0,
-          pointerEvents: showContent ? 'none' : 'auto',
-          transition: 'opacity 1s ease-in-out'
+      {/* Initial centered loader */}
+      <div 
+        style={{ 
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          opacity: fadeIn ? 0 : 1,
+          transition: 'opacity 0.5s ease-in-out',
+          zIndex: 50
         }}
       >
-        {/* Initial centered loader */}
-        <div 
-          style={{ 
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            opacity: fadeIn ? 0 : 1,
-            transition: 'opacity 0.5s ease-in-out'
-          }}
-        >
-          <div className="loader" />
-        </div>
+        <div className="loader" />
+      </div>
 
-        {/* Text that fades in */}
-        <div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
-          style={{
-            opacity: fadeIn ? 1 : 0,
-            transition: 'opacity 1s ease-in-out'
-          }}
-        >
-          <h1 className="text-white text-8xl font-bold text-center">
-            <span>Sarah</span>
-            <span style={{ fontSize: '130%', display: 'inline-block', marginLeft: '8px' }}>
-              OS
-            </span>
-          </h1>
-          <p className="text-white text-2xl text-center">
-            Frontend Design, Ethical Hacking
-          </p>
-        </div>
+      {/* OS Text */}
+      <div 
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
+        style={{
+          opacity: fadeIn ? 1 : 0,
+          transition: 'opacity 1s ease-in-out',
+          zIndex: 40
+        }}
+      >
+        <h1 className="text-white text-8xl font-bold text-center">
+          <span>Sarah</span>
+          <span style={{ fontSize: '130%', display: 'inline-block', marginLeft: '8px' }}>
+            OS
+          </span>
+        </h1>
+        <p className="text-white text-2xl text-center">
+          Frontend Design, Ethical Hacking
+        </p>
       </div>
 
       {/* Desktop Content */}
