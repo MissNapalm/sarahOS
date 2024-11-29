@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 const Window = ({ title, content, onClose }) => {
   const [position, setPosition] = useState({ 
     x: (window.innerWidth - 500) / 2, 
-    y: (window.innerHeight - 1000) / 2 
+    y: (window.innerHeight - 500) / 2 
   });
   const [size, setSize] = useState({ width: 900, height: 600 });
   const [dragging, setDragging] = useState(false);
@@ -60,7 +60,7 @@ const Window = ({ title, content, onClose }) => {
         width: `${size.width}px`,
         height: `${size.height}px`,
         borderRadius: '16px',
-        background: 'rgba(28, 28, 28, 0.8)',
+        background: 'rgba(28, 28, 28, 0.4)',
         backdropFilter: 'blur(20px)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         display: 'flex',
