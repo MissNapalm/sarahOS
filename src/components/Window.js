@@ -3,7 +3,7 @@ import React, { useState, useRef } from "react";
 const Window = ({ title, content, onClose }) => {
   const [position, setPosition] = useState({ 
     x: (window.innerWidth - 500) / 2, 
-    y: (window.innerHeight - 600) / 2 
+    y: (window.innerHeight - 1000) / 2 
   });
   const [size, setSize] = useState({ width: 900, height: 600 });
   const [dragging, setDragging] = useState(false);
