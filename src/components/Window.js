@@ -1,26 +1,29 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 
 const Window = ({ title, content, onClose }) => {
-  const [position, setPosition] = useState({ x: 100, y: 100 });
-  const [size, setSize] = useState({ width: 500, height: 350 });
+  const [position, setPosition] = useState({ 
+    x: (window.innerWidth - 500) / 2, 
+    y: (window.innerHeight - 600) / 2 
+  });
+  const [size, setSize] = useState({ width: 900, height: 600 });
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const resizeStartRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
   const handleMouseDown = (e) => {
-    if (e.target.closest('.window-header-buttons')) return;
+    if (e.target.closest('.window-header-buttons') || e.target.closest('.resize-handle')) return;
     setDragging(true);
-    setDragOffset({
+    dragOffset.current = {
       x: e.clientX - position.x,
       y: e.clientY - position.y
-    });
+    };
     e.preventDefault();
   };
 
   const handleResizeStart = (e) => {
     setResizing(true);
-    resizeStartRef.current = {
+    resizeStart.current = {
       x: e.clientX,
       y: e.clientY,
       width: size.width,
@@ -29,40 +32,23 @@ const Window = ({ title, content, onClose }) => {
     e.stopPropagation();
   };
 
-  // Add global mouse event listeners when resizing starts
-  useEffect(() => {
-    const handleGlobalMouseMove = (e) => {
-      if (resizing) {
-        const deltaX = e.clientX - resizeStartRef.current.x;
-        const deltaY = e.clientY - resizeStartRef.current.y;
-        
-        const newWidth = Math.max(300, resizeStartRef.current.width + deltaX);
-        const newHeight = Math.max(200, resizeStartRef.current.height + deltaY);
-        
-        setSize({ width: newWidth, height: newHeight });
-      } else if (dragging) {
-        setPosition({
-          x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y
-        });
-      }
-    };
-
-    const handleGlobalMouseUp = () => {
-      setDragging(false);
-      setResizing(false);
-    };
-
-    if (resizing || dragging) {
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
+  const handleMouseMove = (e) => {
+    if (dragging) {
+      setPosition({
+        x: e.clientX - dragOffset.current.x,
+        y: e.clientY - dragOffset.current.y
+      });
+    } else if (resizing) {
+      const newWidth = Math.max(600, resizeStart.current.width + (e.clientX - resizeStart.current.x));
+      const newHeight = Math.max(400, resizeStart.current.height + (e.clientY - resizeStart.current.y));
+      setSize({ width: newWidth, height: newHeight });
     }
+  };
 
-    return () => {
-      document.removeEventListener('mousemove', handleGlobalMouseMove);
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-    };
-  }, [resizing, dragging, dragOffset]);
+  const handleMouseUp = () => {
+    setDragging(false);
+    setResizing(false);
+  };
 
   return (
     <div
@@ -84,6 +70,9 @@ const Window = ({ title, content, onClose }) => {
         userSelect: 'none',
         border: '1px solid rgba(255, 255, 255, 0.1)',
       }}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       <div
         className="window-header"
@@ -165,18 +154,17 @@ const Window = ({ title, content, onClose }) => {
         {content}
       </div>
       
-      {/* Larger resize handle */}
+      {/* Resize handle */}
       <div
+        className="resize-handle"
         style={{
           position: 'absolute',
           bottom: 0,
           right: 0,
-          width: '30px',
-          height: '30px',
+          width: '20px',
+          height: '20px',
           cursor: 'se-resize',
           zIndex: 1000,
-          background: 'transparent',
-          transform: 'translate(5px, 5px)', // Extends clickable area outside window
         }}
         onMouseDown={handleResizeStart}
       />
