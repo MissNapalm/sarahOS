@@ -2,10 +2,10 @@ import React, { useState, useRef } from "react";
 
 const Window = ({ title, content, onClose }) => {
   const [position, setPosition] = useState({ 
-    x: (window.innerWidth - 500) / 2, 
-    y: (window.innerHeight - 500) / 2 
+    x: (window.innerWidth - 625) / 2,
+    y: (window.innerHeight - 600) / 2 
   });
-  const [size, setSize] = useState({ width: 900, height: 600 });
+  const [size, setSize] = useState({ width: 625, height: 600 });
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -39,7 +39,7 @@ const Window = ({ title, content, onClose }) => {
         y: e.clientY - dragOffset.current.y
       });
     } else if (resizing) {
-      const newWidth = Math.max(600, resizeStart.current.width + (e.clientX - resizeStart.current.x));
+      const newWidth = Math.max(400, resizeStart.current.width + (e.clientX - resizeStart.current.x));
       const newHeight = Math.max(400, resizeStart.current.height + (e.clientY - resizeStart.current.y));
       setSize({ width: newWidth, height: newHeight });
     }
@@ -60,7 +60,7 @@ const Window = ({ title, content, onClose }) => {
         width: `${size.width}px`,
         height: `${size.height}px`,
         borderRadius: '16px',
-        background: 'rgba(28, 28, 28, 0.4)',
+        background: 'rgba(28, 28, 28, 0.8)',
         backdropFilter: 'blur(20px)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         display: 'flex',
@@ -88,6 +88,7 @@ const Window = ({ title, content, onClose }) => {
           fontWeight: '500',
           cursor: 'grab',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          height: '45px',
         }}
       >
         <span>{title}</span>
@@ -140,12 +141,14 @@ const Window = ({ title, content, onClose }) => {
           />
         </div>
       </div>
+      
       <div
         className="window-content"
         style={{
           flex: 1,
           padding: '20px',
           overflowY: 'auto',
+          overflowX: 'hidden',
           color: 'rgba(255, 255, 255, 0.9)',
           fontSize: '14px',
           background: 'rgba(0, 0, 0, 0.2)',
@@ -154,17 +157,17 @@ const Window = ({ title, content, onClose }) => {
         {content}
       </div>
       
-      {/* Resize handle */}
       <div
         className="resize-handle"
         style={{
           position: 'absolute',
-          bottom: 0,
-          right: 0,
+          bottom: '0',
+          right: '0',
           width: '20px',
           height: '20px',
           cursor: 'se-resize',
           zIndex: 1000,
+          background: 'linear-gradient(135deg, transparent 6px, rgba(255, 255, 255, 0.1) 6px)',
         }}
         onMouseDown={handleResizeStart}
       />

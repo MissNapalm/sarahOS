@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Howl } from 'howler';
+import React, { useState } from "react";
+import { Howl } from "howler";
 import Dock from "./components/Dock";
 import Window from "./components/Window";
 import DesktopIcon from "./components/DesktopIcon";
-import { AboutMeContent, SkillsContent, EthicalHacksContent, NonprofitContent, SettingsContent } from "./components/WindowContent";
-import './App.css';
+import {
+  AboutMeContent,
+  SkillsContent,
+  EthicalHacksContent,
+  NonprofitContent,
+  SettingsContent,
+} from "./components/WindowContent";
+import "./App.css";
 
 const App = () => {
   const dockHeight = 50;
@@ -15,17 +21,22 @@ const App = () => {
     { id: 3, name: "Downloads", icon: "⬇️", content: "Downloads Content", position: { x: 20, y: 330 } },
     { id: 4, name: "Recycle Bin", icon: "🗑️", content: "Recycle Bin Content", position: { x: 20, y: 430 } },
   ]);
-  const [bootScreen, setBootScreen] = useState(true);
-  const [fadeIn, setFadeIn] = useState(false);
-  const [showContent, setShowContent] = useState(false);
+  const [booted, setBooted] = useState(false); // Controls the boot sequence
+  const [fadeInStage, setFadeInStage] = useState(0); // Tracks which elements are fading in
+  const [buttonVisible, setButtonVisible] = useState(true); // Controls the button visibility
+  const [blackScreenOpacity, setBlackScreenOpacity] = useState(1); // Controls the black screen fade-out
 
-  const sound = new Howl({
-    src: ['/startup.mp3'],
-    volume: 0.5
+  // Sound configuration
+  const bootSound = new Howl({
+    src: ["/bootup.mp3"],
+    volume: 0.5,
   });
 
   const openWindow = (app) => {
     let content = app.content;
+    let width = 625; // Default width
+    let height = 600; // Default height
+
     if (app.name === "About Me") {
       content = <AboutMeContent />;
     } else if (app.name === "Skills") {
@@ -39,7 +50,7 @@ const App = () => {
     }
     setWindows((prev) => [
       ...prev,
-      { id: Date.now(), title: app.name, content: content },
+      { id: Date.now(), title: app.name, content: content, width: width, height: height },
     ]);
   };
 
@@ -50,128 +61,132 @@ const App = () => {
   const handleIconDrag = (id, e) => {
     const iconIndex = icons.findIndex((icon) => icon.id === id);
     if (iconIndex === -1) return;
-  
+
     const newIcons = [...icons];
     const newX = newIcons[iconIndex].position.x + e.movementX;
     const newY = newIcons[iconIndex].position.y + e.movementY;
-  
+
     if (newY < dockHeight) {
       newIcons[iconIndex].position.y = newIcons[iconIndex].position.y;
     } else {
       newIcons[iconIndex].position.x = newX;
       newIcons[iconIndex].position.y = newY;
     }
-  
+
     setIcons(newIcons);
   };
 
-  useEffect(() => {
-    // Show text after 2 seconds
-    const spinnerTimer = setTimeout(() => {
-      setFadeIn(true);
-      sound.play();
-    }, 2000);
+  const handleBoot = () => {
+    // Play sound after 1 second delay (500ms further than before)
+    setTimeout(() => {
+      bootSound.play();
+    }, 1000);
 
-    // Hide boot screen after 4 seconds
-    const bootTimer = setTimeout(() => {
-      setBootScreen(false);
-      setTimeout(() => {
-        setShowContent(true);
-      }, 1000);
-    }, 4000);
+    // Start fade-in sequence
+    setTimeout(() => setFadeInStage(1), 100); // Fade in SarahOS text after 700ms
+    setTimeout(() => setFadeInStage(2), 1700); // Fade in desktop icons after 1700ms
+    setTimeout(() => setFadeInStage(3), 2300); // Fade in dock after 2700ms
 
-    // Icon adjustment
-    const adjustedIcons = icons.map((icon) => {
-      if (icon.position.y < dockHeight) {
-        return { ...icon, position: { ...icon.position, y: dockHeight + 10 } };
-      }
-      return icon;
-    });
-    setIcons(adjustedIcons);
-
-    return () => {
-      clearTimeout(spinnerTimer);
-      clearTimeout(bootTimer);
-    };
-  }, []);
+    // Fade out the black screen and make the button disappear
+    setTimeout(() => setBlackScreenOpacity(0), 800); // Start fading out the black screen
+    setTimeout(() => setButtonVisible(false), 100); // Hide the button visually
+    setTimeout(() => setBooted(true), 3000); // Remove the black screen after fade-out completes
+  };
 
   return (
     <div className="desktop">
       {/* Boot Screen */}
+      {!booted && (
+        <div
+          className="fixed inset-0 bg-black flex justify-center items-center"
+          style={{
+            zIndex: 1000,
+            opacity: blackScreenOpacity,
+            transition: "opacity 2s ease-in-out",
+          }}
+        >
+          {buttonVisible && (
+            <button
+              onClick={handleBoot}
+              style={{
+                padding: "20px 50px",
+                fontSize: "24px",
+                color: "white",
+                backgroundColor: "#1a73e8",
+                border: "none",
+                borderRadius: "50px",
+                cursor: "pointer",
+                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+                textShadow: "0 2px 4px rgba(0, 0, 0, 0.3)",
+                transition: "transform 0.3s ease, opacity 1s ease-in-out",
+              }}
+              onMouseEnter={(e) => (e.target.style.transform = "scale(1.1)")}
+              onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+            >
+              Click to Boot Up My Portfolio
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Persistent OS Text */}
       <div
-        className="fixed inset-0 bg-black z-50"
+        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
         style={{
-          opacity: bootScreen ? 1 : 0,
-          pointerEvents: showContent ? 'none' : 'auto',
-          transition: 'opacity 1s ease-in-out'
+          opacity: fadeInStage >= 1 ? 1 : 0,
+          transition: "opacity 2s ease-in-out",
+          zIndex: 40,
         }}
       >
-        {/* Initial centered loader */}
-        <div 
-          style={{ 
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            opacity: fadeIn ? 0 : 1,
-            transition: 'opacity 0.5s ease-in-out'
-          }}
-        >
-          <div className="loader" />
-        </div>
-
-        {/* Text that fades in */}
-        <div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
-          style={{
-            opacity: fadeIn ? 1 : 0,
-            transition: 'opacity 1s ease-in-out'
-          }}
-        >
-          <h1 className="text-white text-8xl font-bold text-center">
-            <span>Sarah</span>
-            <span style={{ fontSize: '130%', display: 'inline-block', marginLeft: '8px' }}>
-              OS
-            </span>
-          </h1>
-          <p className="text-white text-2xl text-center">
-            Frontend Design and Cybersecurity
-          </p>
-        </div>
+        <h1 className="text-white text-8xl font-bold text-center">
+          <span>Sarah</span>
+          <span style={{ fontSize: "130%", display: "inline-block", marginLeft: "8px" }}>OS</span>
+        </h1>
+        <p className="text-white text-2xl text-center">Frontend Design and Cybersecurity</p>
       </div>
 
-      {/* Desktop Content */}
-      <div style={{ opacity: showContent ? 1 : 0, transition: 'opacity 1s ease-in-out' }}>
-        {/* Desktop Icons */}
-        <div className="desktop-icons">
-          {icons.map((icon) => (
-            <div
-              key={icon.id}
-              className="absolute cursor-pointer"
-              style={{
-                left: `${icon.position.x}px`,
-                top: `${icon.position.y}px`,
-              }}
-              onMouseDown={(e) => {
-                const onDrag = (event) => handleIconDrag(icon.id, event);
-                const onDragEnd = () => {
-                  document.removeEventListener("mousemove", onDrag);
-                  document.removeEventListener("mouseup", onDragEnd);
-                };
-                document.addEventListener("mousemove", onDrag);
-                document.addEventListener("mouseup", onDragEnd);
-              }}
-            >
-              <DesktopIcon
-                name={icon.name}
-                icon={icon.icon}
-                onDoubleClick={() => openWindow(icon)}
-              />
-            </div>
-          ))}
-        </div>
+      {/* Desktop Icons */}
+      <div
+        className="desktop-icons"
+        style={{
+          opacity: fadeInStage >= 2 ? 1 : 0,
+          transition: "opacity 2s ease-in-out",
+        }}
+      >
+        {icons.map((icon) => (
+          <div
+            key={icon.id}
+            className="absolute cursor-pointer"
+            style={{
+              left: `${icon.position.x}px`,
+              top: `${icon.position.y}px`,
+            }}
+            onMouseDown={(e) => {
+              const onDrag = (event) => handleIconDrag(icon.id, event);
+              const onDragEnd = () => {
+                document.removeEventListener("mousemove", onDrag);
+                document.removeEventListener("mouseup", onDragEnd);
+              };
+              document.addEventListener("mousemove", onDrag);
+              document.addEventListener("mouseup", onDragEnd);
+            }}
+          >
+            <DesktopIcon
+              name={icon.name}
+              icon={icon.icon}
+              onDoubleClick={() => openWindow(icon)}
+            />
+          </div>
+        ))}
+      </div>
 
-        {/* Dock */}
+      {/* Dock */}
+      <div
+        style={{
+          opacity: fadeInStage >= 3 ? 1 : 0,
+          transition: "opacity 2s ease-in-out",
+        }}
+      >
         <Dock
           apps={[
             { name: "About Me", icon: "📜", content: "About Me Content" },
@@ -182,17 +197,20 @@ const App = () => {
           ]}
           onAppClick={openWindow}
         />
+      </div>
 
-        {/* Windows */}
-        {windows.map((win) => (
+      {/* Windows */}
+      {fadeInStage >= 3 &&
+        windows.map((win) => (
           <Window
             key={win.id}
             title={win.title}
             content={win.content}
+            width={win.width}
+            height={win.height}
             onClose={() => closeWindow(win.id)}
           />
         ))}
-      </div>
     </div>
   );
 };

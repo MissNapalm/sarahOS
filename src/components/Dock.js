@@ -1,14 +1,41 @@
 import React, { useState } from "react";
+import { Howl } from "howler";
 
 const Dock = ({ apps, onAppClick }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  // Sound configuration for click
+  const clickSound = new Howl({
+    src: ["/click.mp3"],
+    volume: 0.5,
+  });
+
+  // Sound configuration for hover
+  const hoverSound = new Howl({
+    src: ["/whoosh.wav"],
+    volume: 0.5,
+  });
+
+  const handleAppClick = (app) => {
+    clickSound.play(); // Play click sound
+    onAppClick(app); // Trigger the app click logic
+  };
+
+  const handleMouseEnter = (index) => {
+    setHoveredIndex(index);
+    hoverSound.play(); // Play hover sound
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+  };
 
   return (
     <div
       className="dock"
       style={{
         position: "fixed",
-        top: 0,
+        bottom: 0,
         left: 0,
         right: 0,
         height: "100px",
@@ -26,9 +53,9 @@ const Dock = ({ apps, onAppClick }) => {
         <div
           key={index}
           className="dock-icon-container"
-          onClick={() => onAppClick(app)}
-          onMouseEnter={() => setHoveredIndex(index)}
-          onMouseLeave={() => setHoveredIndex(null)}
+          onClick={() => handleAppClick(app)} // Use the handleAppClick function
+          onMouseEnter={() => handleMouseEnter(index)} // Trigger hover sound
+          onMouseLeave={handleMouseLeave} // Reset hover state
           style={{
             display: "flex",
             flexDirection: "column",
@@ -45,9 +72,10 @@ const Dock = ({ apps, onAppClick }) => {
               fontSize: app.icon.includes("img") ? "0px" : "50px",
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
               transform: hoveredIndex === index ? "scale(1.3)" : "scale(1)",
-              textShadow: hoveredIndex === index 
-                ? "0 0 20px rgba(255, 255, 255, 0.8)" 
-                : "none",
+              textShadow:
+                hoveredIndex === index
+                  ? "0 0 20px rgba(255, 255, 255, 0.8)"
+                  : "none",
             }}
           >
             {typeof app.icon === "string" ? (

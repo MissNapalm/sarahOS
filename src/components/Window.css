@@ -1,92 +1,208 @@
-.window {
-    position: absolute;
-    width: 500px;
-    height: 350px;
-    border-radius: 15px;
-    background: rgba(255, 255, 255, .1);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: fadeIn 0.4s ease-in-out;
-    user-select: none; /* Prevents text selection */
-    z-index: 1000;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.8);
+import React, { useState, useRef } from "react";
+
+const Window = ({ title, content, onClose }) => {
+  const [position, setPosition] = useState({ 
+    x: (window.innerWidth - 625) / 2,
+    y: (window.innerHeight - 600) / 2 
+  });
+  const [size, setSize] = useState({ width: 625, height: 600 });
+  const [dragging, setDragging] = useState(false);
+  const [resizing, setResizing] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+
+  const handleMouseDown = (e) => {
+    if (e.target.closest('.window-header-buttons') || e.target.closest('.resize-handle')) return;
+    setDragging(true);
+    dragOffset.current = {
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    };
+    e.preventDefault();
+  };
+
+  const handleResizeStart = (e) => {
+    setResizing(true);
+    resizeStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height
+    };
+    e.stopPropagation();
+  };
+
+  const handleMouseMove = (e) => {
+    if (dragging) {
+      setPosition({
+        x: e.clientX - dragOffset.current.x,
+        y: e.clientY - dragOffset.current.y
+      });
+    } else if (resizing) {
+      const newWidth = Math.max(400, resizeStart.current.width + (e.clientX - resizeStart.current.x));
+      const newHeight = Math.max(400, resizeStart.current.height + (e.clientY - resizeStart.current.y));
+      setSize({ width: newWidth, height: newHeight });
     }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
-  .window-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(50, 50, 50, 0.5));
-    color: white;
-    padding: 10px 15px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: grab;
-  }
-  
-  .window-header:active {
-    cursor: grabbing;
-  }
-  
-  .window-header-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .window-header-button {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  .window-header-button:hover {
-    transform: scale(1.2);
-  }
-  
-  .window-header-button.close {
-    background: linear-gradient(135deg, #ff4b4b, #d32f2f);
-  }
-  
-  .window-header-button.minimize {
-    background: linear-gradient(135deg, #fbc02d, #f57f17);
-  }
-  
-  .window-header-button.maximize {
-    background: linear-gradient(135deg, #4caf50, #388e3c);
-  }
-  
-  .window-content {
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
-    font-size: 14px;
-    color: #333;
-  }
-  
-  .window-resizable {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    bottom: 0;
-    right: 0;
-    cursor: nwse-resize;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-  }
-  
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+    setResizing(false);
+  };
+
+  return (
+    <div
+      className="window"
+      style={{
+        position: 'absolute',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+        borderRadius: '15px',
+        background: 'rgba(255, 255, 255, .1)',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        animation: 'fadeIn 0.4s ease-in-out',
+        userSelect: 'none',
+        zIndex: 1000,
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      <div
+        className="window-header"
+        onMouseDown={handleMouseDown}
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(50, 50, 50, 0.5))',
+          color: 'white',
+          padding: '10px 15px',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          cursor: 'grab',
+        }}
+      >
+        <span>{title}</span>
+        <div className="window-header-buttons" style={{ display: 'flex', gap: '10px' }}>
+          <button
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'linear-gradient(135deg, #4caf50, #388e3c)',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease, opacity 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            }}
+            onMouseEnter={e => e.target.style.transform = 'scale(1.2)'}
+            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+          />
+          <button
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'linear-gradient(135deg, #fbc02d, #f57f17)',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease, opacity 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            }}
+            onMouseEnter={e => e.target.style.transform = 'scale(1.2)'}
+            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+          />
+          <button
+            onClick={onClose}
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'linear-gradient(135deg, #ff4b4b, #d32f2f)',
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease, opacity 0.2s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            }}
+            onMouseEnter={e => e.target.style.transform = 'scale(1.2)'}
+            onMouseLeave={e => e.target.style.transform = 'scale(1)'}
+          />
+        </div>
+      </div>
+      
+      <div
+        className="window-content"
+        style={{
+          flex: 1,
+          padding: '20px',
+          overflowY: 'scroll',
+          overflowX: 'hidden',
+          fontSize: '14px',
+          color: '#333',
+          background: 'rgba(0, 0, 0, 0.2)',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.3)',
+        }}
+      >
+        {content}
+      </div>
+      
+      <div
+        className="resize-handle"
+        style={{
+          position: 'absolute',
+          bottom: '0',
+          right: '0',
+          width: '10px',
+          height: '10px',
+          cursor: 'nwse-resize',
+          background: 'rgba(0, 0, 0, 0.2)',
+          borderRadius: '50%',
+        }}
+        onMouseDown={handleResizeStart}
+      />
+    </div>
+  );
+};
+
+// Add this to your CSS file:
+// @keyframes fadeIn {
+//   from {
+//     opacity: 0;
+//     transform: scale(0.8);
+//   }
+//   to {
+//     opacity: 1;
+//     transform: scale(1);
+//   }
+// }
+//
+// .window-content::-webkit-scrollbar {
+//   width: 14px;
+//   background: rgba(0, 0, 0, 0.3);
+// }
+// 
+// .window-content::-webkit-scrollbar-thumb {
+//   background: rgba(255, 255, 255, 0.2);
+//   border-radius: 7px;
+//   border: 3px solid rgba(0, 0, 0, 0.3);
+//   min-height: 40px;
+// }
+// 
+// .window-content::-webkit-scrollbar-thumb:hover {
+//   background: rgba(255, 255, 255, 0.3);
+// }
+// 
+// .window-content::-webkit-scrollbar-track {
+//   background: rgba(0, 0, 0, 0.3);
+//   border-radius: 7px;
+// }
+
+export default Window;

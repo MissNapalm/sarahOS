@@ -231,8 +231,8 @@ export const EthicalHacksContent = () => (
       }}>
         {[
           {
-            title: "Intercepting and Decrypting Web Traffic",
-            description: "Simulated man-in-the-middle attacks to understand how attackers could intercept sensitive data. This project highlighted the importance of SSL/TLS and certificate pinning for secure communication."
+            title: "Using Wireshark to Decrypt Web Traffic and Spy on Devices",
+            description: "Captured the 4-way handshake when a laptop connected to the wifi network, then used the PSK to decrypt and analyze network traffic. This project highlighted the need for additional DNS security, and how easily our privacy can disappear."
           },
           {
             title: "Backdooring Android Phones",
@@ -243,6 +243,14 @@ export const EthicalHacksContent = () => (
             description: "Exploited memory scraping techniques on Windows 10 to recover Wi-Fi credentials, social security numbers, and more. The project emphasized the importance of memory encryption and access controls."
           },
           {
+            title: "Evading Linux and Windows Antivirus by Hiding Backdoors in Files",
+            description: "Demonstrated how attackers could hide backdoors in legitimate files to bypass fully updated antivirus systems. This reinforced the need for advanced anomaly detection tools."
+          },
+          {
+            title: "Fork Bomb Exploits",
+            description: "Simulated a fork bomb to crash systems, showcasing the dangers of uncontrolled processes. The project reinforced the importance of resource quotas and monitoring."
+          },
+          {
             title: "Deauthentication Attacks",
             description: "Performed Wi-Fi deauthentication attacks to showcase network vulnerabilities and the risks of rogue access points. This hack educated users about WPA3 and anti-deauth measures."
           },
@@ -251,12 +259,8 @@ export const EthicalHacksContent = () => (
             description: "Analyzed a simulated wiretap to identify and trace a suspect. This task involved packet analysis and highlighted the potential of OSINT for attribution."
           },
           {
-            title: "Boardlight Hack with Exploits",
-            description: "Developed multi-layered exploits for a mock IoT board system. It showcased the dangers of insecure firmware and reinforced secure-by-design principles."
-          },
-          {
-            title: "Hiding Backdoors in Files",
-            description: "Demonstrated how attackers could hide backdoors in legitimate files to bypass fully updated antivirus systems. This reinforced the need for advanced anomaly detection tools."
+            title: "Hackthebox Capture-the-Flag: 'Boardlight'",
+            description: "Compromised a web server through the 'dirty pipe' exploit, then used LinPEAS to find an additional CVE and get root access to the machine."
           },
           {
             title: "IP Tracing and Geolocation",
@@ -282,10 +286,6 @@ export const EthicalHacksContent = () => (
             title: "OSINT Investigations",
             description: "Used open-source intelligence techniques to uncover publicly available data on mock targets. This exercise showed how seemingly harmless information can be weaponized."
           },
-          {
-            title: "Fork Bomb Exploits",
-            description: "Simulated a fork bomb to crash systems, showcasing the dangers of uncontrolled processes. The project reinforced the importance of resource quotas and monitoring."
-          }
         ].map((hack, index) => (
           <div key={index} style={{
             background: 'rgba(255, 255, 255, 0.05)',
