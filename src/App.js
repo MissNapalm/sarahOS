@@ -26,11 +26,17 @@ const App = () => {
   const [buttonVisible, setButtonVisible] = useState(true); // Controls the button visibility
   const [blackScreenOpacity, setBlackScreenOpacity] = useState(1); // Controls the black screen fade-out
 
-  // Sound configuration
+  // Sound configurations
   const bootSound = new Howl({
     src: ["/bootup.mp3"],
     volume: 0.5,
   });
+
+  // const music = new Howl({
+  //   src: ["/music.mp3"],
+  //   volume: 0.65, // 65% volume
+  //   loop: true,
+  // });
 
   const openWindow = (app) => {
     let content = app.content;
@@ -77,20 +83,24 @@ const App = () => {
   };
 
   const handleBoot = () => {
-    // Play sound after 1 second delay (500ms further than before)
+    // Play boot sound after 1 second delay
     setTimeout(() => {
       bootSound.play();
     }, 1000);
 
     // Start fade-in sequence
-    setTimeout(() => setFadeInStage(1), 100); // Fade in SarahOS text after 700ms
+    setTimeout(() => setFadeInStage(1), 100); // Fade in SarahOS text after 100ms
     setTimeout(() => setFadeInStage(2), 1700); // Fade in desktop icons after 1700ms
-    setTimeout(() => setFadeInStage(3), 2300); // Fade in dock after 2700ms
+    setTimeout(() => setFadeInStage(3), 2300); // Fade in dock after 2300ms
 
     // Fade out the black screen and make the button disappear
     setTimeout(() => setBlackScreenOpacity(0), 800); // Start fading out the black screen
     setTimeout(() => setButtonVisible(false), 100); // Hide the button visually
     setTimeout(() => setBooted(true), 3000); // Remove the black screen after fade-out completes
+
+    // Play background music 1.8 seconds after the visual elements fade in
+    setTimeout(() => {
+    }, 4100); // 2300ms + 1800ms delay
   };
 
   return (

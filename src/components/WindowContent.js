@@ -230,6 +230,19 @@ export const EthicalHacksContent = () => (
         padding: '20px'
       }}>
         {[
+                      {
+                        title: "Bypassing Browser Security and Stealing Session Cookies",
+                        description: "Exploited lax MIME type handling in web browsers to execute hidden JavaScript code. This highlighted vulnerabilities where browsers misinterpreted file types, allowing malicious scripts to bypass content security policies. The exercise underscored the critical need for strict MIME type enforcement and robust web application security.",
+                      },
+                      {
+                        title: "Evading Linux and Windows Antivirus by Hiding Backdoors in Files",
+                        description: "Demonstrated how attackers could hide backdoors in legitimate files to bypass fully updated antivirus systems. This reinforced the need for advanced anomaly detection tools."
+                      },
+                      {
+                        title: "Using AI-powered privilege escalation exploits to root a Linux system",
+                        description: "Used AI to scan my Linux Mint laptop for security holes I could use to escalate my privileges. Then I used AI to locate a security hole in Vim that I used to root the machine."
+
+                      },
           {
             title: "Using Wireshark to Decrypt Web Traffic and Spy on Devices",
             description: "Captured the 4-way handshake when a laptop connected to the wifi network, then used the PSK to decrypt and analyze network traffic. This project highlighted the need for additional DNS security, and how easily our privacy can disappear."
@@ -241,10 +254,6 @@ export const EthicalHacksContent = () => (
           {
             title: "Stealing Credentials from Memory",
             description: "Exploited memory scraping techniques on Windows 10 to recover Wi-Fi credentials, social security numbers, and more. The project emphasized the importance of memory encryption and access controls."
-          },
-          {
-            title: "Evading Linux and Windows Antivirus by Hiding Backdoors in Files",
-            description: "Demonstrated how attackers could hide backdoors in legitimate files to bypass fully updated antivirus systems. This reinforced the need for advanced anomaly detection tools."
           },
           {
             title: "Fork Bomb Exploits",
@@ -273,10 +282,6 @@ export const EthicalHacksContent = () => (
           {
             title: "Wi-Fi Jamming with Flipper Zero",
             description: "Simulated Wi-Fi jamming attacks to showcase the vulnerabilities of unprotected networks. It highlighted the importance of frequency hopping and secure protocols."
-          },
-          {
-            title: "Phishing Scams to Defeat 2FA",
-            description: "Designed a phishing campaign to bypass two-factor authentication using session token theft. This hack emphasized the importance of hardware tokens and phishing-resistant 2FA."
           },
           {
             title: "Decrypting Browser History",
