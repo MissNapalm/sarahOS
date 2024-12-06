@@ -231,15 +231,19 @@ export const EthicalHacksContent = () => (
       }}>
         {[
                       {
-                        title: "Exploiting lax MIME type handling and stealing cookies",
-                        description: "Exploited lax MIME type handling in web browsers to execute hidden JavaScript code. This highlighted vulnerabilities where browsers misinterpreted file types, allowing malicious scripts to bypass content security policies. The exercise underscored the critical need for strict MIME type enforcement and robust web application security.",
+                        title: "Exploited Lax MIME type handling to hijack session cookies",
+                        description: "Exploited lax MIME type handling in web browsers to execute hidden JavaScript code. The exercise underscored the critical need for strict MIME type enforcement and robust web application security.",
                       },
                       {
-                        title: "Evading Linux and Windows Antivirus by Hiding Backdoors in Files",
+                        title: "Evaded Linux and Windows Antivirus by Hiding Backdoors in Files",
                         description: "Demonstrated how attackers could hide backdoors in legitimate files to bypass fully updated antivirus systems. This reinforced the need for advanced anomaly detection tools."
                       },
                       {
-                        title: "Using AI-powered privilege escalation exploits to root a Linux system",
+                        title: "Built a hacking lab demonstrating how SQL injection CVEs can lead to a ransomware attack",
+                        description: "Built an ethical hacking lab demonstrating how a website can be hacked and defaced. I went beyond the project scope by also adding in the ability to compromise the server itself and upload fake ransomware."
+                      },
+                      {
+                        title: "Using AI to find a privilege escalation vector and rooting a Linux laptop",
                         description: "Used AI to scan my Linux Mint laptop for security holes I could use to escalate my privileges. Then I used AI to locate a security hole in Vim that I used to root the machine."
 
                       },
