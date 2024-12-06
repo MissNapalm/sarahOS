@@ -231,7 +231,7 @@ export const EthicalHacksContent = () => (
       }}>
         {[
                       {
-                        title: "Bypassing Browser Security and Stealing Session Cookies",
+                        title: "Exploiting lax MIME type handling and stealing cookies",
                         description: "Exploited lax MIME type handling in web browsers to execute hidden JavaScript code. This highlighted vulnerabilities where browsers misinterpreted file types, allowing malicious scripts to bypass content security policies. The exercise underscored the critical need for strict MIME type enforcement and robust web application security.",
                       },
                       {
